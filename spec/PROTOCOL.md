@@ -17,12 +17,29 @@ qbt serve --host 127.0.0.1 --port 8766
 
 The sidecar binds to loopback by default. It refuses a non-loopback bind unless `QBT_SIDECAR_TOKEN` is configured. Provider credentials are never returned by the API.
 
+Live IBM/Azure job submission through the sidecar is also **disabled by default**, even on loopback. Enable it only when the machine is intentionally permitted to spend provider quota / submit live work:
+
+```bash
+qbt serve --host 127.0.0.1 --port 8766 --allow-live-providers
+```
+
+or:
+
+```bash
+export QBT_ALLOW_LIVE_PROVIDERS=1
+qbt serve
+```
+
+Simulator sampling and external-result normalization do not require that live-provider opt-in.
+
 Endpoints:
 
 - `GET /health`
 - `GET /v1/status?provider=simulator|ibm|azure`
 - `POST /v1/sample`
 - `POST /v1/normalize`
+
+`GET /health` includes `live_provider_execution` so clients can see whether live job submission is enabled without exposing credentials.
 
 Sample request:
 
