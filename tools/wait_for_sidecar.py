@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import sys
 import time
+import urllib.error
 import urllib.request
 
 
@@ -12,7 +13,7 @@ def main() -> None:
             with urllib.request.urlopen(url, timeout=1) as response:
                 if response.status == 200:
                     return
-        except Exception:
+        except (OSError, urllib.error.URLError):
             time.sleep(0.1)
     raise SystemExit(f"QBT sidecar did not become ready: {url}")
 
