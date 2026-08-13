@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite this repository and the related CST research."
+title: "Quantum Bridge Transformer (QBT): Azure + IBM Bridge Attachment"
+type: software
+authors:
+  - family-names: "Davis"
+    given-names: "Cory Shane"
+year: 2026
+license: "Apache-2.0"
+repository-code: "https://github.com/NavisWORLD/Quantum-azure-ibm-bridge-attachment-"
+keywords:
+  - quantum computing
+  - artificial intelligence
+  - transformer
+  - IBM Quantum
+  - Azure Quantum
+  - provenance
+references:
+  - type: report
+    title: "12-Dimensional Cosmic Synapse Theory"
+    authors:
+      - family-names: "Davis"
+        given-names: "Cory Shane"
+    doi: "10.5281/zenodo.17574447"
