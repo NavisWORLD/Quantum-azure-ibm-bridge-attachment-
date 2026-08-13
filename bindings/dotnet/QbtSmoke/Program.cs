@@ -1,5 +1,5 @@
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 
 public static class Program
@@ -58,7 +58,10 @@ public sealed class QbtClient : IDisposable
         using var request = new HttpRequestMessage(method, _baseUrl + path);
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         if (body is not null)
-            request.Content = JsonContent.Create(body);
+        {
+            var json = JsonSerializer.Serialize(body, body.GetType());
+            request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+        }
 
         using var response = await _http.SendAsync(request);
         var text = await response.Content.ReadAsStringAsync();
