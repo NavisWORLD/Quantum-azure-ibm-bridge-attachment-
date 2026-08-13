@@ -16,6 +16,7 @@ from .providers.simulator import SimulatorProvider
 
 MAX_BODY_BYTES = 1_048_576
 MAX_SHOTS = 1_000_000
+LIVE_PROVIDERS = frozenset({"ibm", "azure"})
 
 
 def _provider(name: str, seed: int):
@@ -37,6 +38,10 @@ def _validated_shots(value: Any) -> int:
     if shots < 1 or shots > MAX_SHOTS:
         raise ValueError(f"shots must be between 1 and {MAX_SHOTS}")
     return shots
+
+
+def _truthy(value: str | None) -> bool:
+    return str(value or "").strip().lower() in {"1", "true", "yes", "on"}
 
 
 def sample_payload(
@@ -106,10 +111,12 @@ class QbtHttpServer(ThreadingHTTPServer):
         *,
         auth_token: str | None = None,
         allow_origin: str | None = None,
+        allow_live_providers: bool = False,
     ) -> None:
         super().__init__(server_address, handler_class)
         self.auth_token = auth_token or None
         self.allow_origin = allow_origin or None
+        self.allow_live_providers = bool(allow_live_providers)
 
 
 class QbtRequestHandler(BaseHTTPRequestHandler):
@@ -180,6 +187,7 @@ class QbtRequestHandler(BaseHTTPRequestHandler):
                         "status": "ok",
                         "qbt_version": "1.0",
                         "credentials_exposed": False,
+                        "live_provider_execution": self.server.allow_live_providers,
                     },
                 )
                 return
@@ -201,10 +209,22 @@ class QbtRequestHandler(BaseHTTPRequestHandler):
         try:
             payload = self._read_json()
             if parsed.path == "/v1/sample":
+                provider = str(payload.get("provider", "simulator"))
+                if provider in LIVE_PROVIDERS and not self.server.allow_live_providers:
+                    self._send(
+                        403,
+                        {
+                            "error": (
+                                "live provider execution is disabled; restart QBT with "
+                                "--allow-live-providers or set QBT_ALLOW_LIVE_PROVIDERS=1"
+                            )
+                        },
+                    )
+                    return
                 self._send(
                     200,
                     sample_payload(
-                        provider=str(payload.get("provider", "simulator")),
+                        provider=provider,
                         shots=_validated_shots(payload.get("shots", 1024)),
                         seed=int(payload.get("seed", 42)),
                     ),
@@ -226,9 +246,15 @@ def make_server(
     *,
     auth_token: str | None = None,
     allow_origin: str | None = None,
+    allow_live_providers: bool | None = None,
 ) -> QbtHttpServer:
     token = auth_token or os.getenv("QBT_SIDECAR_TOKEN") or None
     origin = allow_origin or os.getenv("QBT_ALLOW_ORIGIN") or None
+    live = (
+        _truthy(os.getenv("QBT_ALLOW_LIVE_PROVIDERS"))
+        if allow_live_providers is None
+        else bool(allow_live_providers)
+    )
     if not _is_loopback(host) and not token:
         raise ValueError(
             "refusing non-loopback bind without QBT_SIDECAR_TOKEN; "
@@ -239,13 +265,20 @@ def make_server(
         QbtRequestHandler,
         auth_token=token,
         allow_origin=origin,
+        allow_live_providers=live,
     )
 
 
-def serve(host: str = "127.0.0.1", port: int = 8766) -> None:
-    server = make_server(host, port)
+def serve(
+    host: str = "127.0.0.1",
+    port: int = 8766,
+    *,
+    allow_live_providers: bool | None = None,
+) -> None:
+    server = make_server(host, port, allow_live_providers=allow_live_providers)
     print(f"QBT sidecar listening on http://{host}:{server.server_port}")
     print("No provider credentials are exposed by the HTTP API.")
+    print(f"Live provider execution: {'enabled' if server.allow_live_providers else 'disabled'}")
     try:
         server.serve_forever()
     except KeyboardInterrupt:
