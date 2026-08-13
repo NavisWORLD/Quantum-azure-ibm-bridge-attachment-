@@ -1,64 +1,160 @@
-# Quantum Azure + IBM Bridge Attachment
+# Quantum Bridge Transformer (QBT)
 
-A reusable, provider-neutral implementation of the **Quantum Bridge Transformer (QBT)** integration pattern developed in the COSMOS/CST research lineage.
+[![CI](https://github.com/NavisWORLD/Quantum-azure-ibm-bridge-attachment-/actions/workflows/ci.yml/badge.svg)](https://github.com/NavisWORLD/Quantum-azure-ibm-bridge-attachment-/actions/workflows/ci.yml)
+![Python](https://img.shields.io/badge/python-3.10%2B-blue)
+![License](https://img.shields.io/badge/license-Apache--2.0-green)
+![IBM Quantum](https://img.shields.io/badge/IBM-Quantum-6929C4)
+![Azure Quantum](https://img.shields.io/badge/Azure-Quantum-0078D4)
 
-> **Core claim:** QBT lets classical AI, control systems, agents, and transformers consume bounded, auditable signals derived from quantum-computing executions. It does **not** claim that the downstream language model itself runs on a QPU, and this repository does **not** claim quantum advantage for ML.
+> **Bring your own quantum account. Keep your own AI stack.**
 
-## Why this repository exists
+QBT is a reusable, provider-neutral attachment that converts IBM Quantum / Azure Quantum execution results into bounded, auditable control state that ordinary AI, agents, simulations, and control systems can consume.
 
-The original COSMOS runtime used IBM/Azure quantum systems as entropy, provenance, and control channels alongside classical state, memory, sensory summaries, and local model inference. This repository extracts that pattern into a small library that another engineer or company can add to an unrelated project.
+It does **not** claim that your LLM suddenly runs on a QPU. It gives your existing software a disciplined quantum-to-classical interface.
 
 ```text
 IBM Quantum ──┐
-              ├──> Provider adapters
+              ├──> QBT provider adapters
 Azure Quantum ┤          │
 Simulator ────┘          ▼
-                  QuantumBridge
+                  normalized QuantumState
                        │
-            normalized QuantumState
+        provenance + bounded control vector
                        │
           ┌────────────┼────────────┐
           ▼            ▼            ▼
-      Prompt block  Controller   QBT gate
-                                  │
-                                  ▼
-                           Classical model
+       prompts       routing     PyTorch gate
+                                    │
+                                    ▼
+                              your AI/model
 ```
 
-## Install
+## Why engineers use it
 
-Core + simulator:
+- **Bring your own keys/account** — no COSMOS credentials are bundled or required.
+- **IBM + Azure** — current IBM Qiskit Runtime / Sampler V2 path and Azure workspace support.
+- **Provider-neutral contract** — downstream code consumes `QuantumState`, not vendor SDK objects.
+- **Auditable provenance** — provider, backend, job ID, shot count, timestamp, and SHA-256 digest.
+- **Bounded influence** — normalized vectors and optional learned gating instead of raw unbounded injection.
+- **Fail-soft** — QPU/provider outages do not have to crash normal inference.
+- **Scientifically testable** — hardware, simulator, classical-random, fixed, and disabled control arms are first-class.
+- **Easy to teach** — teacher manual, labs, paper, proof ledger, and demo script included.
+
+## 60-second start
 
 ```bash
-pip install -e .
+git clone https://github.com/NavisWORLD/Quantum-azure-ibm-bridge-attachment-.git
+cd Quantum-azure-ibm-bridge-attachment-
+python -m venv .venv
+# Windows: .venv\Scripts\activate
+# macOS/Linux: source .venv/bin/activate
+pip install -e ".[dev]"
+qbt sample --provider simulator --shots 1024
+pytest
 ```
 
-IBM Quantum:
+The default sample is deliberately a **classical control** and is labeled `simulator`.
+
+## Bring your own API keys
+
+Interactive setup:
+
+```bash
+qbt configure
+qbt doctor
+```
+
+`qbt configure` writes a local `.env` file that is gitignored. Secret fields use hidden terminal input. `qbt doctor` reports only `configured` / `missing` for secrets; it does not print them.
+
+You can also copy the template:
+
+```bash
+cp .env.example .env
+```
+
+### IBM Quantum
+
+Install:
 
 ```bash
 pip install -e ".[ibm]"
 ```
 
-Azure Quantum:
+Configure one of these ways:
+
+1. `qbt configure`
+2. environment variables
+3. a Qiskit Runtime account already saved on your machine
+4. direct constructor injection from your organization's secret manager
+
+Environment variables:
+
+```dotenv
+IBM_QUANTUM_TOKEN=
+IBM_QUANTUM_INSTANCE=
+IBM_QUANTUM_BACKEND=
+```
+
+Then:
+
+```bash
+qbt status --provider ibm
+qbt sample --provider ibm --shots 1024
+```
+
+Python:
+
+```python
+from qbt_bridge import QuantumBridge
+from qbt_bridge.providers.ibm import IBMQuantumProvider
+
+bridge = QuantumBridge([IBMQuantumProvider()])
+print(bridge.connect())
+packet = bridge.control_packet(shots=1024)
+print(packet["quantum_mix"])
+print(packet["states"][0]["job_id"])
+```
+
+### Azure Quantum
+
+Install:
 
 ```bash
 pip install -e ".[azure]"
 ```
 
-PyTorch conditioning layer:
+Recommended workspace locator:
 
-```bash
-pip install -e ".[torch]"
+```dotenv
+AZURE_QUANTUM_RESOURCE_ID=
+AZURE_QUANTUM_TARGET=
 ```
 
-Development:
+Alternative locator:
 
-```bash
-pip install -e ".[dev]"
-pytest
+```dotenv
+AZURE_SUBSCRIPTION_ID=
+AZURE_QUANTUM_RESOURCE_GROUP=
+AZURE_QUANTUM_WORKSPACE=
 ```
 
-## 60-second integration
+Optional Microsoft Entra service principal:
+
+```dotenv
+AZURE_TENANT_ID=
+AZURE_CLIENT_ID=
+AZURE_CLIENT_SECRET=
+```
+
+Azure CLI / DefaultAzureCredential can be used instead, avoiding a stored client secret.
+
+```bash
+qbt status --provider azure
+```
+
+Azure Quantum supports multiple target/provider job schemas, so QBT keeps execution behind a tiny injected runner instead of pretending every target has the same `run()` API. See `docs/API_KEYS.md` and `examples/azure_workspace.py`.
+
+## Five-line project integration
 
 ```python
 from qbt_bridge import QuantumBridge
@@ -66,149 +162,116 @@ from qbt_bridge.providers import SimulatorProvider
 
 bridge = QuantumBridge([SimulatorProvider(seed=7)])
 bridge.connect()
-
 packet = bridge.control_packet(shots=2048)
-
-print(packet["quantum_mix"])
-print(packet["states"][0]["result_digest"])
 ```
 
-The simulator is intentionally a **classical control**. Its output is labeled `simulator`, never hardware.
-
-## IBM integration
-
-```python
-from qbt_bridge import QuantumBridge
-from qbt_bridge.providers.ibm import IBMQuantumProvider
-
-provider = IBMQuantumProvider(
-    backend="YOUR_BACKEND"  # optional; otherwise adapter selects an operational backend
-)
-
-bridge = QuantumBridge([provider])
-print(bridge.connect())
-packet = bridge.control_packet(shots=1024)
-```
-
-Set credentials outside source control:
-
-```bash
-export IBM_QUANTUM_TOKEN="..."
-```
-
-## Azure integration
-
-Azure Quantum exposes multiple provider/target styles, so the package keeps the provider-specific submission logic behind an injected runner:
-
-```python
-from qbt_bridge import QuantumBridge
-from qbt_bridge.providers.azure import AzureQuantumProvider
-
-def run_azure(workspace, target, shots):
-    # Submit through the Azure provider SDK appropriate to your target.
-    # Return the normalized minimum contract shown below.
-    return {
-        "counts": {"0": 510, "1": 514},
-        "job_id": "provider-job-id",
-        "backend": target,
-        "quality_class": "hardware",
-    }
-
-provider = AzureQuantumProvider(runner=run_azure)
-bridge = QuantumBridge([provider])
-bridge.connect()
-packet = bridge.control_packet(shots=1024)
-```
-
-This design avoids pretending all Azure targets share one job schema.
+`packet` contains the bounded multi-provider mix plus per-source provenance.
 
 ## Minimum normalized contract
 
-Every provider is converted into a `QuantumState` containing:
+Every provider becomes a `QuantumState` with:
 
-- provider
-- backend
-- execution mode: `hardware`, `simulator`, `archive`, or `fallback`
-- timestamp
-- job ID when available
-- shots
-- normalized entropy in `[0, 1]`
-- normalized control vector
-- SHA-256 result digest
-- non-secret provenance
-- quality metadata
+```text
+provider
+backend
+execution_mode = hardware | simulator | archive | fallback
+timestamp
+job_id
+shots
+entropy in [0, 1]
+normalized_vector
+result_digest (SHA-256)
+provenance
+quality metadata
+```
 
 ## Three integration levels
 
-### 1. Prompt/control context
+### 1. Prompt/control metadata
 
-Use `qbt_bridge.integrations.to_prompt_block(packet)` to give a model compact, auditable state without exposing credentials.
+```python
+from qbt_bridge.integrations import to_prompt_block
+prompt_context = to_prompt_block(packet)
+```
+
+Only non-secret state is serialized.
 
 ### 2. External controller
 
-Use `quantum_mix` or the full normalized vector to choose a search branch, ensemble route, exploration policy, simulation parameter, or other bounded control.
+Use `quantum_mix` or the normalized vector to influence bounded routing, exploration, simulation initial conditions, or ensemble selection.
 
 ### 3. Native transformer conditioner
 
-`build_qbt_conditioner()` implements:
+```python
+from qbt_bridge.integrations.torch import build_qbt_conditioner
+conditioner = build_qbt_conditioner(model_dim=4096, quantum_dim=4)
+```
 
-\[
+The included layer implements:
+
+```text
 H_q = W_q Q + b_q
-\]
+G   = sigmoid(W_g[H ; H_q] + b_g)
+H'  = LayerNorm(H + G * H_q)
+```
 
-\[
-G = \sigma(W_g[H;H_q] + b_g)
-\]
+A learned gate can move toward zero if the quantum channel does not help the task.
 
-\[
-H' = LayerNorm(H + G \odot H_q)
-\]
+## Scientific controls are mandatory for performance claims
 
-If training finds no value in the quantum channel, the gate can learn toward zero.
-
-## Scientific controls are mandatory
-
-For research claims, compare at least:
+Compare at least:
 
 1. real quantum hardware
 2. provider simulator
-3. matched classical CSPRNG/PRNG
-4. fixed `0.5` control
+3. matched classical random source
+4. fixed control
 5. QBT disabled
 
-A bridge connection proves integration and provenance. It does **not** prove an accuracy advantage.
+A provider connection or job ID can establish integration/provenance. It does **not** establish a model-quality advantage.
 
 ## COSMOS proof-of-concept lineage
 
-The source material used to extract this library recorded:
+The source material from which QBT was extracted recorded:
 
-- a live COSMOS boot connecting to IBM backend `ibm_fez`
-- bridge-reported entropy value `0.8239` in that run
-- separate hardware/simulation/archive status paths
-- explicit user-triggered IBM live-refill permission checks
-- fail-soft bridge behavior
-- IBM/Azure entropy blending into the COSMOS cognitive loop as bounded `q_entropy`
+- a COSMOS runtime connection to IBM backend `ibm_fez`
+- a bridge-reported value `0.8239` in that captured run
+- explicit hardware/simulation/archive status paths
+- permission checks before explicit real IBM live-refill execution
+- IBM/Azure entropy blending into a classical cognitive loop as bounded `q_entropy`
 
-See `docs/PROOF_OF_CONCEPT.md` and `paper/QUANTUM_BRIDGE_TRANSFORMER.md`.
-
-## Research status
-
-The broader CST/COSMOS research ledger reports positive results for **quantum provenance and auditability**, while matched tests did **not** establish quantum advantage for model accuracy. This repository preserves that distinction on purpose.
+The broader CST/COSMOS research ledger reports positive evidence for quantum provenance/auditability while several matched ML-advantage tests were null. This repo preserves that distinction.
 
 Related foundational research: **12-Dimensional Cosmic Synapse Theory**, DOI `10.5281/zenodo.17574447`.
 
-## Documentation
+## Repo map
 
-- `docs/ARCHITECTURE.md` — engineering architecture
-- `docs/INTEGRATION_GUIDE.md` — company/project integration checklist
-- `docs/PROOF_OF_CONCEPT.md` — evidence and claim boundaries
-- `docs/TEACHER_MANUAL.md` — curriculum, labs, rubric, answer guidance
-- `docs/SECURITY.md` — credentials, privacy, permissions
-- `paper/QUANTUM_BRIDGE_TRANSFORMER.md` — publication-style manuscript
-- `CITATION.cff` — citation metadata
+```text
+src/qbt_bridge/              installable library
+  bridge.py                  orchestration / fail-soft blend
+  config.py                  BYOK .env loader + masked configuration status
+  providers/ibm.py           IBM Qiskit Runtime / Sampler V2
+  providers/azure.py         Azure Quantum workspace adapter
+  providers/simulator.py     classical control
+  integrations/prompt.py     prompt-safe state block
+  integrations/torch.py      trainable conditioner
+examples/                    runnable integration examples
+tests/                       offline tests
+docs/API_KEYS.md             full credential setup
+docs/ARCHITECTURE.md         engineering specification
+docs/INTEGRATION_GUIDE.md    company adoption checklist
+docs/PROOF_OF_CONCEPT.md     evidence + claim boundaries
+docs/TEACHER_MANUAL.md       course/labs/rubric/capstone
+docs/LAUNCH_KIT.md           public launch copy + visual plan
+docs/DEMO_SCRIPT.md          two-minute demo
+paper/                       publication-style manuscript
+```
+
+## Launch / contribute
+
+If you can add a provider, reproduce a benchmark, find a security issue, produce a clean null result, or attach QBT to a model stack we did not anticipate, contributions are welcome. See `CONTRIBUTING.md` and `ROADMAP.md`.
 
 ## License
 
-Apache License 2.0. See `LICENSE`.
+Apache License 2.0. See `LICENSE` and `NOTICE`.
 
 Copyright 2026 Cory Shane Davis.
