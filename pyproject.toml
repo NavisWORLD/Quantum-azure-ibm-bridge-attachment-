@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "qbt-bridge"
-version = "0.3.0"
+version = "0.4.0"
 description = "Provider-neutral Quantum Bridge Transformer integration layer for IBM Quantum, Azure Quantum, simulators, and classical AI systems."
 readme = "README.md"
 requires-python = ">=3.10"
