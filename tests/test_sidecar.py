@@ -20,8 +20,13 @@ def _request(url: str, *, body: dict | None = None, token: str | None = None) ->
         return json.loads(response.read().decode("utf-8"))
 
 
-def _running_server(*, token: str | None = None):
-    server = make_server("127.0.0.1", 0, auth_token=token)
+def _running_server(*, token: str | None = None, allow_live_providers: bool = False):
+    server = make_server(
+        "127.0.0.1",
+        0,
+        auth_token=token,
+        allow_live_providers=allow_live_providers,
+    )
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
     return server, thread
@@ -34,6 +39,7 @@ def test_sidecar_health_sample_and_normalize():
         health = _request(f"{base}/health")
         assert health["status"] == "ok"
         assert health["credentials_exposed"] is False
+        assert health["live_provider_execution"] is False
 
         sample = _request(
             f"{base}/v1/sample",
@@ -54,6 +60,36 @@ def test_sidecar_health_sample_and_normalize():
         )
         assert normalized["state"]["entropy"] == pytest.approx(1.0)
         assert len(normalized["state"]["result_digest"]) == 64
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+
+def test_live_provider_sampling_requires_explicit_opt_in():
+    server, thread = _running_server()
+    base = f"http://127.0.0.1:{server.server_port}"
+    try:
+        with pytest.raises(urllib.error.HTTPError) as exc:
+            _request(
+                f"{base}/v1/sample",
+                body={"provider": "ibm", "shots": 128},
+            )
+        assert exc.value.code == 403
+        payload = json.loads(exc.value.read().decode("utf-8"))
+        assert "disabled" in payload["error"]
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+
+def test_live_provider_opt_in_is_visible_in_health():
+    server, thread = _running_server(allow_live_providers=True)
+    base = f"http://127.0.0.1:{server.server_port}"
+    try:
+        health = _request(f"{base}/health")
+        assert health["live_provider_execution"] is True
     finally:
         server.shutdown()
         server.server_close()
