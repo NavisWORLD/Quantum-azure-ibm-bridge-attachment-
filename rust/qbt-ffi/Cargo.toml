@@ -1,0 +1,19 @@
+[package]
+name = "qbt-ffi"
+version = "0.3.0"
+edition = "2021"
+rust-version = "1.75"
+description = "Stable C ABI for the Quantum Bridge Transformer native Rust core."
+license = "Apache-2.0"
+authors = ["Cory Shane Davis"]
+repository = "https://github.com/NavisWORLD/Quantum-azure-ibm-bridge-attachment-"
+
+[lib]
+name = "qbt_ffi"
+crate-type = ["cdylib", "staticlib", "rlib"]
+
+[dependencies]
+chrono = "0.4"
+qbt-bridge = { path = "../qbt-bridge" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
