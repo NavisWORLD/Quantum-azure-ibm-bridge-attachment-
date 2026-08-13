@@ -55,6 +55,7 @@ QBT does **not** claim that a classical transformer suddenly executes on a QPU. 
 - **Native Python + Rust**: use QBT directly in either ecosystem.
 - **Universal sidecar**: any HTTP/JSON-capable language can call the same tested core.
 - **C ABI**: embed QBT from C-compatible FFI ecosystems without Python.
+- **Safe live-provider boundary**: HTTP-triggered IBM/Azure jobs are disabled until explicitly enabled by the operator.
 - **Auditable provenance**: provider, backend, job ID, shot count, timestamp, metadata, and SHA-256 digest.
 - **Bounded influence**: normalized control values stay in `[0, 1]`.
 - **Fail-soft behavior**: provider failures are reported without requiring the host AI process to crash.
@@ -122,10 +123,22 @@ See **[`RUST_USERS.md`](RUST_USERS.md)** for IBM REST, Azure REST/runner integra
 
 # 3. Universal HTTP/JSON
 
-Start the local sidecar:
+Start the safe local sidecar:
 
 ```bash
 qbt serve --host 127.0.0.1 --port 8766
+```
+
+By default, the sidecar allows simulator sampling and normalization but **refuses HTTP-triggered live IBM/Azure job submission**. When an operator intentionally wants the sidecar to submit live provider work, enable it explicitly:
+
+```bash
+qbt serve --host 127.0.0.1 --port 8766 --allow-live-providers
+```
+
+or set:
+
+```dotenv
+QBT_ALLOW_LIVE_PROVIDERS=1
 ```
 
 Endpoints:
@@ -136,6 +149,8 @@ GET  /v1/status?provider=simulator|ibm|azure
 POST /v1/sample
 POST /v1/normalize
 ```
+
+`GET /health` reports `live_provider_execution` so clients can see the execution policy without exposing credentials.
 
 Example:
 
@@ -157,6 +172,8 @@ Security defaults:
 
 - loopback only by default
 - non-loopback binds require `QBT_SIDECAR_TOKEN`
+- live IBM/Azure HTTP execution disabled by default
+- live execution requires explicit operator opt-in
 - raw provider credentials are never returned
 - request bodies are size-limited
 - shot requests are bounded
@@ -394,7 +411,7 @@ GitHub Actions is the source of truth for automated release validation. The comp
 - shell/curl
 - PowerShell
 
-Live IBM/Azure account acceptance remains BYOK and is never performed with somebody else's private credentials in public CI.
+Live IBM/Azure account acceptance remains BYOK and is never performed with somebody else's private credentials in public CI. HTTP-triggered live provider jobs require explicit operator opt-in.
 
 # Contribute
 
