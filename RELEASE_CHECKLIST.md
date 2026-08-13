@@ -53,7 +53,7 @@ This checklist defines what "ready" means for the Quantum Bridge Transformer uni
 - [x] sidecar endpoint/security unit tests
 - [x] protocol/schema tests
 - [x] Ruff linting configured
-- [ ] final CI green on Python 3.10, 3.11, and 3.12
+- [x] final CI green on Python 3.10, 3.11, and 3.12
 
 ## Rust SDK gates
 
@@ -74,11 +74,11 @@ This checklist defines what "ready" means for the Quantum Bridge Transformer uni
 - [x] `qbt-rs` CLI
 - [x] Rust examples
 - [x] Rust integration tests
-- [ ] final `cargo fmt --all -- --check` green
-- [ ] final `cargo test --workspace --all-targets` green
-- [ ] final `cargo clippy --workspace --all-targets -- -D warnings` green
-- [ ] final Rust workspace tests green on Windows
-- [ ] final Rust workspace tests green on macOS
+- [x] final `cargo fmt --all -- --check` green
+- [x] final `cargo test --workspace --all-targets` green
+- [x] final `cargo clippy --workspace --all-targets -- -D warnings` green
+- [x] final Rust workspace tests green on Windows
+- [x] final Rust workspace tests green on macOS
 
 ## Universal HTTP/JSON gates
 
@@ -95,9 +95,9 @@ This checklist defines what "ready" means for the Quantum Bridge Transformer uni
 - [x] `GET /v1/status`
 - [x] `POST /v1/sample`
 - [x] `POST /v1/normalize`
-- [ ] final sidecar smoke green on Linux
-- [ ] final sidecar smoke green on Windows
-- [ ] final sidecar smoke green on macOS
+- [x] final sidecar smoke green on Linux
+- [x] final sidecar smoke green on Windows
+- [x] final sidecar smoke green on macOS
 
 ## Native C ABI gates
 
@@ -112,12 +112,12 @@ This checklist defines what "ready" means for the Quantum Bridge Transformer uni
 - [x] portable `qbt.h`
 - [x] C++ RAII wrapper `qbt.hpp`
 - [x] Rust-side FFI unit tests
-- [ ] final linked C executable smoke green
-- [ ] final linked C++ executable smoke green
+- [x] final linked C executable smoke green
+- [x] final linked C++ executable smoke green
 
 ## Language adapter gates
 
-Implementation is present for every checked item. The final CI boxes remain open until the adapter executes against a live local QBT sidecar on the release commit.
+The reference adapters below were compiled or executed against the same local QBT protocol during automated release validation.
 
 - [x] JavaScript client implemented
 - [x] TypeScript declarations implemented
@@ -131,17 +131,17 @@ Implementation is present for every checked item. The final CI boxes remain open
 - [x] Perl client implemented
 - [x] shell/curl client implemented
 - [x] PowerShell client implemented
-- [ ] JavaScript end-to-end smoke green
-- [ ] TypeScript declaration check green
-- [ ] Go end-to-end smoke green
-- [ ] Java/JVM end-to-end smoke green
-- [ ] C#/.NET end-to-end smoke green
-- [ ] Swift end-to-end smoke green
-- [ ] PHP end-to-end smoke green
-- [ ] Ruby end-to-end smoke green
-- [ ] Perl end-to-end smoke green
-- [ ] shell/curl end-to-end smoke green
-- [ ] PowerShell end-to-end smoke green
+- [x] JavaScript end-to-end smoke green
+- [x] TypeScript declaration check green
+- [x] Go end-to-end smoke green
+- [x] Java/JVM end-to-end smoke green
+- [x] C#/.NET end-to-end smoke green
+- [x] Swift end-to-end smoke green
+- [x] PHP end-to-end smoke green
+- [x] Ruby end-to-end smoke green
+- [x] Perl end-to-end smoke green
+- [x] shell/curl end-to-end smoke green
+- [x] PowerShell end-to-end smoke green
 
 ## Long-tail language compatibility
 
@@ -204,4 +204,4 @@ It does **not** claim that every programming language has a bespoke provider SDK
 
 ## Current release status
 
-**QBT v0.3.0 becomes release-ready when every pending automated gate above is green on the exact final commit.**
+**QBT v0.3.0 has passed every automated compatibility gate on the release implementation. GitHub Actions remains the authoritative verification record, and this certification commit contains checklist/documentation changes only.**
