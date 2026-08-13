@@ -32,7 +32,7 @@ Source: "..\..\LICENSE"; DestDir: "{app}"; Flags: ignoreversion
 [Icons]
 Name: "{group}\QBT Desktop"; Filename: "{app}\{#MyAppExeName}"
 Name: "{autodesktop}\QBT Desktop"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
-Name: "{group}\QBT Rust CLI"; Filename: "{cmd}"; Parameters: "/K \"\"{app}\qbt-rs.exe\" --help\""; WorkingDir: "{app}"
+Name: "{group}\QBT Rust CLI"; Filename: "{cmd}"; Parameters: "/K ""{app}\qbt-rs.exe"" --help"; WorkingDir: "{app}"
 Name: "{group}\Uninstall QBT"; Filename: "{uninstallexe}"
 
 [Tasks]
