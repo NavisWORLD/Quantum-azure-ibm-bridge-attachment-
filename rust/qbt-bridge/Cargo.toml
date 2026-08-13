@@ -1,0 +1,31 @@
+[package]
+name = "qbt-bridge"
+version = "0.2.0"
+edition = "2021"
+rust-version = "1.75"
+description = "Rust implementation of the Quantum Bridge Transformer provider-neutral quantum-to-classical integration layer."
+license = "Apache-2.0"
+authors = ["Cory Shane Davis"]
+repository = "https://github.com/NavisWORLD/Quantum-azure-ibm-bridge-attachment-"
+readme = "README.md"
+keywords = ["quantum", "ai", "provenance", "ibm", "azure"]
+categories = ["science", "api-bindings"]
+
+[dependencies]
+chrono = { version = "0.4", features = ["serde"] }
+clap = { version = "4.5", features = ["derive"] }
+hex = "0.4"
+rand = "0.8"
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "rustls-tls"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+thiserror = "2"
+uuid = { version = "1", features = ["v4", "serde"] }
+
+[dev-dependencies]
+tempfile = "3"
+
+[[bin]]
+name = "qbt-rs"
+path = "src/bin/qbt-rs.rs"
