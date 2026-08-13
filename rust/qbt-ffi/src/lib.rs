@@ -11,9 +11,7 @@ use std::ptr;
 
 use chrono::Utc;
 use qbt_bridge::providers::SimulatorProvider;
-use qbt_bridge::{
-    normalize_sample, ExecutionMode, Quality, QuantumBridge, QuantumSample,
-};
+use qbt_bridge::{normalize_sample, ExecutionMode, Quality, QuantumBridge, QuantumSample};
 use serde::Deserialize;
 use serde_json::{json, Value};
 

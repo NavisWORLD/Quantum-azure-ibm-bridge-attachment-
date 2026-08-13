@@ -60,7 +60,9 @@ fn is_secret_key(key: &str) -> bool {
 
 fn configure(file: PathBuf) -> Result<()> {
     println!("QBT Rust configuration. Leave any field blank to skip it.");
-    println!("Secrets use hidden terminal input and are written only to the local file you choose.");
+    println!(
+        "Secrets use hidden terminal input and are written only to the local file you choose."
+    );
 
     let mut values = BTreeMap::new();
     for key in CONFIG_KEYS {

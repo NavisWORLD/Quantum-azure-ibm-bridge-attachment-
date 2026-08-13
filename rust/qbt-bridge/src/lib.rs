@@ -122,7 +122,11 @@ pub fn entropy_from_counts(counts: &BTreeMap<String, u64>) -> f64 {
     if total == 0 {
         return 0.5;
     }
-    let positive: Vec<u64> = counts.values().copied().filter(|value| *value > 0).collect();
+    let positive: Vec<u64> = counts
+        .values()
+        .copied()
+        .filter(|value| *value > 0)
+        .collect();
     if positive.len() <= 1 {
         return 0.0;
     }
@@ -459,8 +463,7 @@ pub mod providers {
             if !self.connected {
                 self.connect()?;
             }
-            let mut counts =
-                BTreeMap::from([("0".to_string(), 0_u64), ("1".to_string(), 0_u64)]);
+            let mut counts = BTreeMap::from([("0".to_string(), 0_u64), ("1".to_string(), 0_u64)]);
             for _ in 0..shots {
                 let bit = if self.rng.gen_bool(0.5) { "1" } else { "0" };
                 if let Some(value) = counts.get_mut(bit) {
@@ -540,9 +543,7 @@ pub mod providers {
 
         fn crn(&self) -> Result<&str> {
             self.instance_crn.as_deref().ok_or_else(|| {
-                QbtError::Config(
-                    "IBM_QUANTUM_INSTANCE must contain the instance CRN".to_string(),
-                )
+                QbtError::Config("IBM_QUANTUM_INSTANCE must contain the instance CRN".to_string())
             })
         }
 
@@ -923,7 +924,9 @@ pub mod providers {
     }
 
     fn env_value(key: &str) -> Option<String> {
-        std::env::var(key).ok().filter(|value| !value.trim().is_empty())
+        std::env::var(key)
+            .ok()
+            .filter(|value| !value.trim().is_empty())
     }
 
     fn required_env(key: &str) -> Result<String> {
