@@ -95,6 +95,11 @@ def main() -> None:
     )
     parser.add_argument("--host", default="127.0.0.1", help="Sidecar bind host")
     parser.add_argument("--port", type=int, default=8766, help="Sidecar bind port")
+    parser.add_argument(
+        "--allow-live-providers",
+        action="store_true",
+        help="Allow the HTTP sidecar to submit IBM/Azure live jobs",
+    )
     args = parser.parse_args()
 
     if args.command == "configure":
@@ -106,7 +111,7 @@ def main() -> None:
     if args.command == "serve":
         from .sidecar import serve
 
-        serve(args.host, args.port)
+        serve(args.host, args.port, allow_live_providers=args.allow_live_providers or None)
         return
 
     provider = _provider(args.provider, args.seed)
