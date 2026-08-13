@@ -18,7 +18,7 @@ def _ask(label: str, *, secret: bool = False, default: str = "") -> str:
 
 
 def configure(env_path: str, *, overwrite: bool = False) -> None:
-    print("QBT credential wizard — values are stored only in your local gitignored .env file.")
+    print("QBT credential wizard. Values are stored only in your local gitignored .env file.")
     print("Press Enter to skip any field. Existing non-empty values are preserved by default.")
     provider = _ask("Configure provider (ibm/azure/both)", default="both").lower()
     values: dict[str, str] = {}
@@ -31,13 +31,17 @@ def configure(env_path: str, *, overwrite: bool = False) -> None:
     if provider in {"azure", "both"}:
         print("\nAzure: resource ID + Azure CLI/Entra auth is recommended.")
         values["AZURE_QUANTUM_RESOURCE_ID"] = _ask("Azure Quantum workspace resource ID")
-        values["AZURE_SUBSCRIPTION_ID"] = _ask("Azure subscription ID (alternative to resource ID)")
+        values["AZURE_SUBSCRIPTION_ID"] = _ask(
+            "Azure subscription ID (alternative to resource ID)"
+        )
         values["AZURE_QUANTUM_RESOURCE_GROUP"] = _ask("Azure resource group")
         values["AZURE_QUANTUM_WORKSPACE"] = _ask("Azure Quantum workspace name")
         values["AZURE_QUANTUM_TARGET"] = _ask("Azure Quantum target/provider name")
         values["AZURE_TENANT_ID"] = _ask("Azure tenant ID (service principal; optional)")
         values["AZURE_CLIENT_ID"] = _ask("Azure client ID (service principal; optional)")
-        values["AZURE_CLIENT_SECRET"] = _ask("Azure client secret (service principal; optional)", secret=True)
+        values["AZURE_CLIENT_SECRET"] = _ask(
+            "Azure client secret (service principal; optional)", secret=True
+        )
 
     path = write_env_file(values, env_path, overwrite=overwrite)
     print(f"Saved local configuration to {path}. This file is gitignored.")
@@ -76,12 +80,26 @@ def _provider(name: str, seed: int):
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Quantum Bridge Transformer CLI")
-    parser.add_argument("command", choices=["status", "sample", "configure", "doctor"])
+    parser.add_argument(
+        "command",
+        choices=["status", "sample", "configure", "doctor", "serve"],
+    )
     parser.add_argument("--provider", choices=["simulator", "ibm", "azure"], default="simulator")
     parser.add_argument("--shots", type=int, default=1024)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--env-file", default=os.getenv("QBT_ENV_FILE", ".env"))
-    parser.add_argument("--overwrite", action="store_true", help="Replace existing configured values during setup")
+    parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="Replace existing configured values during setup",
+    )
+    parser.add_argument("--host", default="127.0.0.1", help="Sidecar bind host")
+    parser.add_argument("--port", type=int, default=8766, help="Sidecar bind port")
+    parser.add_argument(
+        "--allow-live-providers",
+        action="store_true",
+        help="Allow the HTTP sidecar to submit IBM/Azure live jobs",
+    )
     args = parser.parse_args()
 
     if args.command == "configure":
@@ -89,6 +107,11 @@ def main() -> None:
         return
     if args.command == "doctor":
         doctor()
+        return
+    if args.command == "serve":
+        from .sidecar import serve
+
+        serve(args.host, args.port, allow_live_providers=args.allow_live_providers or None)
         return
 
     provider = _provider(args.provider, args.seed)

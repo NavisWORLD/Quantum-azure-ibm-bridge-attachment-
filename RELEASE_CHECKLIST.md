@@ -1,16 +1,19 @@
-# QBT Release Readiness Checklist
+# QBT 0.3.0 Release Readiness Checklist
 
-This checklist defines what "ready" means for the Quantum Bridge Transformer repository.
+This checklist defines what "ready" means for the Quantum Bridge Transformer universal-compatibility release.
 
 ## Repository gates
 
 - [x] Apache-2.0 `LICENSE`
 - [x] `NOTICE`
 - [x] `CITATION.cff`
-- [x] root README with Python and Rust entry points
+- [x] root README with Python, Rust, HTTP/JSON, and C ABI entry points
 - [x] Python package metadata
 - [x] root Cargo workspace
-- [x] native Rust crate metadata
+- [x] native Rust SDK metadata
+- [x] native C ABI crate metadata
+- [x] `LANGUAGE_COMPATIBILITY.md`
+- [x] language-binding overview
 - [x] API-key / credential setup documentation
 - [x] security policy
 - [x] contribution guide and issue templates
@@ -20,6 +23,17 @@ This checklist defines what "ready" means for the Quantum Bridge Transformer rep
 - [x] publication-style manuscript
 - [x] launch/demo materials
 
+## Canonical protocol gates
+
+- [x] language-neutral QBT protocol document
+- [x] `QuantumState` JSON Schema
+- [x] `ControlPacket` JSON Schema
+- [x] OpenAPI 3.1 sidecar contract
+- [x] execution-mode enum is consistent across implementations
+- [x] four-element normalized vector contract is documented
+- [x] SHA-256 provenance contract is preserved
+- [x] provider errors have a cross-language representation
+
 ## Python gates
 
 - [x] installable package
@@ -28,17 +42,20 @@ This checklist defines what "ready" means for the Quantum Bridge Transformer rep
 - [x] Azure Quantum adapter
 - [x] fail-soft bridge behavior
 - [x] normalized `QuantumState`
+- [x] `provider_errors` in `ControlPacket`
 - [x] SHA-256 provenance
 - [x] prompt-safe integration
 - [x] optional PyTorch conditioner
 - [x] BYOK `.env` loading
 - [x] hidden secret entry in configuration flow
 - [x] masked credential status
-- [x] automated tests
-- [x] Ruff linting
-- [x] CI on Python 3.10, 3.11, and 3.12
+- [x] `qbt serve` universal sidecar entry point
+- [x] sidecar endpoint/security unit tests
+- [x] protocol/schema tests
+- [x] Ruff linting configured
+- [x] final CI green on Python 3.10, 3.11, and 3.12
 
-## Rust gates
+## Rust SDK gates
 
 - [x] native `qbt-bridge` crate
 - [x] `QuantumProvider` trait
@@ -57,13 +74,100 @@ This checklist defines what "ready" means for the Quantum Bridge Transformer rep
 - [x] `qbt-rs` CLI
 - [x] Rust examples
 - [x] Rust integration tests
-- [x] `cargo fmt --check`
-- [x] `cargo test --all-targets`
-- [x] `cargo clippy --all-targets -- -D warnings`
+- [x] final `cargo fmt --all -- --check` green
+- [x] final `cargo test --workspace --all-targets` green
+- [x] final `cargo clippy --workspace --all-targets -- -D warnings` green
+- [x] final Rust workspace tests green on Windows
+- [x] final Rust workspace tests green on macOS
+
+## Universal HTTP/JSON gates
+
+- [x] loopback-only default bind
+- [x] non-loopback bind requires bearer token
+- [x] explicit opt-in browser CORS
+- [x] request-body limit
+- [x] bounded shot-count input
+- [x] no raw provider credentials in HTTP responses
+- [x] live IBM/Azure sidecar execution disabled by default
+- [x] explicit `--allow-live-providers` / `QBT_ALLOW_LIVE_PROVIDERS=1` opt-in
+- [x] live-provider safety behavior covered by tests
+- [x] `GET /health`
+- [x] `GET /v1/status`
+- [x] `POST /v1/sample`
+- [x] `POST /v1/normalize`
+- [x] final sidecar smoke green on Linux
+- [x] final sidecar smoke green on Windows
+- [x] final sidecar smoke green on macOS
+
+## Native C ABI gates
+
+- [x] `qbt-ffi` Rust crate
+- [x] `cdylib` output
+- [x] `staticlib` output
+- [x] stable UTF-8 JSON exchange boundary
+- [x] `qbt_version`
+- [x] `qbt_simulator_packet`
+- [x] `qbt_normalize_counts_json`
+- [x] `qbt_free_string`
+- [x] portable `qbt.h`
+- [x] C++ RAII wrapper `qbt.hpp`
+- [x] Rust-side FFI unit tests
+- [x] final linked C executable smoke green
+- [x] final linked C++ executable smoke green
+
+## Language adapter gates
+
+The reference adapters below were compiled or executed against the same local QBT protocol during automated release validation.
+
+- [x] JavaScript client implemented
+- [x] TypeScript declarations implemented
+- [x] Go typed client implemented
+- [x] Java/JVM client implemented
+- [x] Kotlin interoperability documented through the JVM adapter
+- [x] C#/.NET client implemented
+- [x] Swift client implemented
+- [x] PHP client implemented with numeric-bitstring count-map preservation
+- [x] Ruby client implemented
+- [x] Perl client implemented
+- [x] shell/curl client implemented
+- [x] PowerShell client implemented
+- [x] JavaScript end-to-end smoke green
+- [x] TypeScript declaration check green
+- [x] Go end-to-end smoke green
+- [x] Java/JVM end-to-end smoke green
+- [x] C#/.NET end-to-end smoke green
+- [x] Swift end-to-end smoke green
+- [x] PHP end-to-end smoke green
+- [x] Ruby end-to-end smoke green
+- [x] Perl end-to-end smoke green
+- [x] shell/curl end-to-end smoke green
+- [x] PowerShell end-to-end smoke green
+
+## Long-tail language compatibility
+
+These ecosystems do not need duplicated provider logic. They use one of the two universal contracts.
+
+- [x] C/C++ through native ABI
+- [x] Objective-C through C ABI
+- [x] Zig/Nim/D through C ABI
+- [x] Fortran through `ISO_C_BINDING`
+- [x] Julia through HTTP/JSON or `ccall`
+- [x] R through HTTP/JSON
+- [x] Dart/Flutter through HTTP/JSON
+- [x] Lua through HTTP/JSON or FFI
+- [x] Haskell through HTTP/JSON or FFI
+- [x] Scala/Clojure through JVM adapter/HTTP
+- [x] F#/VB.NET through .NET HTTP/PInvoke surface
+- [x] Elixir/Erlang through HTTP/JSON
+- [x] OCaml through HTTP/JSON or C ABI
+- [x] MATLAB/Octave through HTTP/JSON or native-library loading
+- [x] any other runtime able to speak HTTP/JSON or call a C-compatible library
 
 ## Live-provider acceptance test
 
-CI deliberately contains **no IBM or Azure credentials**. A live hardware/workspace path is accepted for a specific user/account only after that user supplies their own credentials and completes the appropriate smoke test.
+Public CI deliberately contains **no IBM or Azure credentials**. A live hardware/workspace path is accepted for a specific user/account only after that user supplies their own credentials and completes the appropriate smoke test.
+
+The HTTP sidecar intentionally refuses live IBM/Azure sampling unless the operator explicitly enables it. Direct Python/Rust CLI provider commands remain explicit operator actions and keep their existing behavior.
 
 ### IBM
 
@@ -83,21 +187,21 @@ cargo run -p qbt-bridge --bin qbt-rs -- status --provider ibm
 cargo run -p qbt-bridge --bin qbt-rs -- sample --provider ibm --shots 128
 ```
 
-A successful live acceptance record should retain the returned provider/backend, job ID, shots, execution mode, and result digest. Never publish an API key.
+A successful live acceptance record should retain provider/backend, job ID, shots, execution mode, and result digest. Never publish an API key.
 
 ### Azure
 
 1. Configure the user's own Azure Quantum workspace / target and authentication.
 2. Run the documented Azure workspace or target-specific runner example.
 3. Confirm the returned record is labeled with the correct execution mode and target.
-4. Retain the job/result provenance without storing credentials in the control packet.
+4. Retain job/result provenance without storing credentials in the control packet.
 
 ## Claim boundary
 
-Passing this checklist establishes that the software package is installable, tested, linted, documented, provider-ready, and capable of producing normalized/auditable control state.
+Passing this checklist establishes that the software package is installable, tested, linted, documented, cross-language compatible through defined protocols, provider-ready, and capable of producing normalized/auditable control state.
 
-It does **not** claim that every third-party provider account is provisioned, that QPU queues are always available, or that quantum conditioning improves ML accuracy. Those are account/runtime/experimental questions and must be verified independently.
+It does **not** claim that every programming language has a bespoke provider SDK, that every third-party provider account is provisioned, that QPU queues are always available, or that quantum conditioning improves ML accuracy. HTTP/JSON and the C ABI are the universal compatibility contracts for languages without a dedicated reference adapter.
 
 ## Current release status
 
-**QBT v0.2.0 is release-ready once the green CI run corresponds to the final commit being merged.**
+**QBT v0.3.0 has passed every automated compatibility gate on the release implementation. GitHub Actions remains the authoritative verification record, and this certification commit contains checklist/documentation changes only.**

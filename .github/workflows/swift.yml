@@ -1,0 +1,28 @@
+name: Swift Compatibility
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  swift:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e .
+      - name: Start QBT sidecar
+        run: |
+          nohup python -m qbt_bridge.cli serve --host 127.0.0.1 --port 8766 >/tmp/qbt-sidecar.log 2>&1 &
+          python tools/wait_for_sidecar.py
+      - name: Compile Swift client
+        run: swiftc bindings/swift/QbtClient.swift bindings/swift/Smoke.swift -o /tmp/qbt-swift-smoke
+      - name: Run Swift client
+        run: /tmp/qbt-swift-smoke http://127.0.0.1:8766

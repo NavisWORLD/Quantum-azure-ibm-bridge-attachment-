@@ -1,0 +1,30 @@
+name: PowerShell Compatibility
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  powershell:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e .
+      - name: Start QBT sidecar and run PowerShell client
+        shell: pwsh
+        run: |
+          $process = Start-Process python -ArgumentList "-m", "qbt_bridge.cli", "serve", "--host", "127.0.0.1", "--port", "8766" -PassThru
+          try {
+            python tools/wait_for_sidecar.py
+            & ./bindings/powershell/smoke.ps1 -BaseUrl "http://127.0.0.1:8766"
+          } finally {
+            Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+          }
