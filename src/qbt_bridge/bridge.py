@@ -10,7 +10,7 @@ from .protocol import QuantumProvider
 
 @dataclass
 class QuantumBridge:
-    """Normalize quantum results into bounded state for downstream AI/control."""
+    """Provider-neutral bridge that normalizes quantum results for downstream AI/control."""
 
     providers: list[QuantumProvider]
     fallback: float = 0.5
@@ -22,7 +22,7 @@ class QuantumBridge:
             try:
                 provider.connect()
                 status[provider.name] = provider.health()
-            except Exception as exc:
+            except Exception as exc:  # noqa: BLE001 - fail-soft by design
                 status[provider.name] = {
                     "available": False,
                     "active": False,
@@ -34,8 +34,10 @@ class QuantumBridge:
         states: list[QuantumState] = []
         for provider in self.providers:
             try:
-                states.append(normalize_sample(provider.sample(shots=shots)))
-            except Exception:
+                sample = provider.sample(shots=shots)
+                states.append(normalize_sample(sample))
+            except Exception:  # noqa: BLE001,S112
+                # Provider failure must not crash the host AI system.
                 continue
         self._last_states = states
         return list(states)
@@ -54,7 +56,7 @@ class QuantumBridge:
         for provider in self.providers:
             try:
                 provider_status[provider.name] = provider.health()
-            except Exception as exc:
+            except Exception as exc:  # noqa: BLE001
                 provider_status[provider.name] = {
                     "available": False,
                     "active": False,
@@ -72,5 +74,5 @@ class QuantumBridge:
         for provider in self.providers:
             try:
                 provider.close()
-            except Exception:
+            except Exception:  # noqa: BLE001,S110
                 pass
