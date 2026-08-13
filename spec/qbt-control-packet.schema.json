@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://qbt.local/spec/qbt-control-packet.schema.json",
+  "title": "QBT ControlPacket",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["qbt_version", "active_sources", "quantum_mix", "states", "provider_errors"],
+  "properties": {
+    "qbt_version": {"type": "string", "const": "1.0"},
+    "active_sources": {"type": "integer", "minimum": 0},
+    "quantum_mix": {"type": "number", "minimum": 0, "maximum": 1},
+    "states": {
+      "type": "array",
+      "items": {"$ref": "qbt-state.schema.json"}
+    },
+    "provider_errors": {
+      "type": "object",
+      "additionalProperties": {"type": "string"}
+    }
+  }
+}
