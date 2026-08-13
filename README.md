@@ -1,50 +1,68 @@
 # Quantum Bridge Transformer (QBT)
 
 [![CI](https://github.com/NavisWORLD/Quantum-azure-ibm-bridge-attachment-/actions/workflows/ci.yml/badge.svg)](https://github.com/NavisWORLD/Quantum-azure-ibm-bridge-attachment-/actions/workflows/ci.yml)
-![Python](https://img.shields.io/badge/python-3.10%2B-blue)
+![QBT](https://img.shields.io/badge/QBT-0.3.0-blueviolet)
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
 ![Rust](https://img.shields.io/badge/Rust-native-orange)
+![C ABI](https://img.shields.io/badge/C%20ABI-FFI-informational)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green)
 ![IBM Quantum](https://img.shields.io/badge/IBM-Quantum-6929C4)
 ![Azure Quantum](https://img.shields.io/badge/Azure-Quantum-0078D4)
 
 > **Bring your own quantum account. Keep your own AI stack.**
 
-QBT is a reusable, provider-neutral attachment that converts IBM Quantum / Azure Quantum execution results into bounded, auditable control state that ordinary AI, agents, simulations, and control systems can consume.
+QBT is a provider-neutral quantum-to-classical integration layer. It converts IBM Quantum, Azure Quantum, simulator, archive, or external measurement results into a bounded, auditable `QuantumState` / `ControlPacket` that ordinary AI systems, agents, simulations, games, robotics, research software, and control systems can consume.
 
-The repository now ships **two first-class implementations: Python and native Rust**. The Rust crate is not a Python subprocess wrapper; it implements the QBT state model, provider trait, normalization, provenance hashing, fail-soft bridge, simulator, IBM REST flow, Azure REST/runner layer, CLI, tests, and examples directly in Rust.
+QBT 0.3.0 ships four compatibility surfaces:
 
-It does **not** claim that your LLM suddenly runs on a QPU. It gives your existing software a disciplined quantum-to-classical interface.
+1. **Native Python SDK**
+2. **Native Rust SDK**
+3. **Universal JSON/HTTP sidecar**
+4. **Native Rust-built C ABI** for FFI-capable languages
+
+This gives QBT practical interoperability across Python, Rust, C, C++, JavaScript, TypeScript, Go, Java, Kotlin, C#, F#, Swift, Objective-C, PHP, Ruby, Perl, PowerShell, shell, Zig, Nim, D, Fortran, Julia, R, Dart, Lua, Haskell, Scala, Clojure, Elixir/Erlang, OCaml, MATLAB/Octave, and other environments that can call HTTP/JSON or a C-compatible library.
+
+See **[`LANGUAGE_COMPATIBILITY.md`](LANGUAGE_COMPATIBILITY.md)** for the complete compatibility matrix.
+
+QBT does **not** claim that a classical transformer suddenly executes on a QPU. It provides a disciplined, testable bridge between quantum-derived measurements and conventional software.
 
 ```text
-IBM Quantum ──┐
-              ├──> QBT provider adapters
-Azure Quantum ┤          │
-Simulator ────┘          ▼
-                  normalized QuantumState
-                       │
-        provenance + bounded control vector
-                       │
-          ┌────────────┼────────────┐
-          ▼            ▼            ▼
-       prompts       routing     model gate
+ IBM Quantum ──┐
+ Azure Quantum ┤
+ Simulator ────┼────> provider adapters / external counts
+ Archive ──────┤                    │
+ Other source ─┘                    ▼
+                              QuantumSample
+                                    │
+                     normalization + provenance
                                     │
                                     ▼
-                              your AI/model
+                              QuantumState
+                                    │
+                         bounded ControlPacket
+                                    │
+             ┌──────────────────────┼──────────────────────┐
+             ▼                      ▼                      ▼
+       Python / Rust           HTTP / JSON              C ABI
+             │                      │                      │
+             └────────────── your AI / app / system ─────┘
 ```
 
 ## Why engineers use it
 
-- **Python + native Rust** — choose the host language that fits your stack.
-- **Bring your own keys/account** — no COSMOS credentials are bundled or required.
-- **IBM + Azure** — IBM Qiskit Runtime/Sampler V2 in Python, IBM REST in Rust, and Azure workspace/data-plane integration paths.
-- **Provider-neutral contract** — downstream code consumes `QuantumState`, not vendor SDK objects.
-- **Auditable provenance** — provider, backend, job ID, shot count, timestamp, and SHA-256 digest.
-- **Bounded influence** — normalized vectors and optional learned gating instead of raw unbounded injection.
-- **Fail-soft** — QPU/provider outages do not have to crash normal inference.
-- **Scientifically testable** — hardware, simulator, classical-random, fixed, and disabled control arms are first-class.
-- **Easy to teach** — teacher manual, labs, paper, proof ledger, and demo script included.
+- **Bring your own account**: no personal IBM/Azure credentials are included.
+- **Provider-neutral contract**: downstream systems consume QBT state, not vendor SDK objects.
+- **Native Python + Rust**: use QBT directly in either ecosystem.
+- **Universal sidecar**: any HTTP/JSON-capable language can call the same tested core.
+- **C ABI**: embed QBT from C-compatible FFI ecosystems without Python.
+- **Auditable provenance**: provider, backend, job ID, shot count, timestamp, metadata, and SHA-256 digest.
+- **Bounded influence**: normalized control values stay in `[0, 1]`.
+- **Fail-soft behavior**: provider failures are reported without requiring the host AI process to crash.
+- **Cross-platform**: compatibility CI covers Linux, Windows, and macOS paths.
+- **Scientifically testable**: real hardware, simulator, classical random, fixed, and disabled controls remain separate.
+- **Teachability**: architecture docs, teacher manual, labs, proof ledger, paper, and demo material are included.
 
-# Python quick start
+# 1. Python quick start
 
 ```bash
 git clone https://github.com/NavisWORLD/Quantum-azure-ibm-bridge-attachment-.git
@@ -57,20 +75,30 @@ qbt sample --provider simulator --shots 1024
 pytest
 ```
 
-The default sample is deliberately a **classical control** and is labeled `simulator`.
+The default simulator is deliberately labeled as a classical control.
 
-# Rust quick start
+Python project integration:
 
-The repository root is a Cargo workspace, so Rust users can start immediately:
+```python
+from qbt_bridge import QuantumBridge
+from qbt_bridge.providers import SimulatorProvider
+
+bridge = QuantumBridge([SimulatorProvider(seed=7)])
+bridge.connect()
+packet = bridge.control_packet(shots=2048)
+print(packet["quantum_mix"])
+```
+
+# 2. Rust quick start
+
+The repository root is a Cargo workspace:
 
 ```bash
-git clone https://github.com/NavisWORLD/Quantum-azure-ibm-bridge-attachment-.git
-cd Quantum-azure-ibm-bridge-attachment-
-cargo test --workspace
+cargo test --workspace --all-targets
 cargo run -p qbt-bridge --bin qbt-rs -- sample --provider simulator --shots 1024
 ```
 
-Or use the crate in another Rust project as a path dependency:
+Use it from another Rust project:
 
 ```toml
 [dependencies]
@@ -86,81 +114,122 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     bridge.connect();
     let packet = bridge.control_packet(2048);
     println!("mix={}", packet.quantum_mix);
-    println!("digest={}", packet.states[0].result_digest);
     Ok(())
 }
 ```
 
-See **[`RUST_USERS.md`](RUST_USERS.md)** for IBM REST, Azure REST/runner, custom provider, configuration, and production guidance.
+See **[`RUST_USERS.md`](RUST_USERS.md)** for IBM REST, Azure REST/runner integration, custom providers, credentials, and production guidance.
 
-# Bring your own API keys
+# 3. Universal HTTP/JSON
 
-Python interactive setup:
+Start the local sidecar:
+
+```bash
+qbt serve --host 127.0.0.1 --port 8766
+```
+
+Endpoints:
+
+```text
+GET  /health
+GET  /v1/status?provider=simulator|ibm|azure
+POST /v1/sample
+POST /v1/normalize
+```
+
+Example:
+
+```bash
+curl -s -H 'Content-Type: application/json' \
+  -d '{"provider":"simulator","shots":1024,"seed":42}' \
+  http://127.0.0.1:8766/v1/sample
+```
+
+External measurement normalization:
+
+```bash
+curl -s -H 'Content-Type: application/json' \
+  -d '{"provider":"external","backend":"my-backend","mode":"hardware","counts":{"0":512,"1":512},"shots":1024}' \
+  http://127.0.0.1:8766/v1/normalize
+```
+
+Security defaults:
+
+- loopback only by default
+- non-loopback binds require `QBT_SIDECAR_TOKEN`
+- raw provider credentials are never returned
+- request bodies are size-limited
+- shot requests are bounded
+- browser CORS is disabled unless `QBT_ALLOW_ORIGIN` is explicitly configured
+
+Canonical protocol files:
+
+- `spec/qbt-state.schema.json`
+- `spec/qbt-control-packet.schema.json`
+- `spec/qbt-api.openapi.yaml`
+- `spec/PROTOCOL.md`
+
+Reference HTTP clients live under `bindings/`.
+
+# 4. Native C ABI
+
+Build the Rust FFI library:
+
+```bash
+cargo build -p qbt-ffi --release
+```
+
+Headers:
+
+```text
+rust/qbt-ffi/include/qbt.h
+rust/qbt-ffi/include/qbt.hpp
+```
+
+Core exports:
+
+```c
+const char *qbt_version(void);
+char *qbt_simulator_packet(uint64_t seed, uint64_t shots);
+char *qbt_normalize_counts_json(const char *request_json);
+void qbt_free_string(char *value);
+```
+
+Returned owned JSON strings are released with `qbt_free_string`. The protocol version pointer is static and must not be freed.
+
+This ABI is directly usable from C/C++ and can be bound from Objective-C, Zig, Nim, D, Fortran `ISO_C_BINDING`, Julia `ccall`, Swift, .NET P/Invoke, JVM FFI/JNA/JNI/Panama, and other C-FFI ecosystems.
+
+# Bring your own provider credentials
+
+No live IBM/Azure keys are bundled in the repository.
+
+Python setup:
 
 ```bash
 qbt configure
 qbt doctor
 ```
 
-`qbt configure` writes a local `.env` file that is gitignored. Secret fields use hidden terminal input. `qbt doctor` reports only `configured` / `missing` for secrets; it does not print them.
-
-You can also copy the template:
+Rust setup:
 
 ```bash
-cp .env.example .env
-```
-
-Rust has its own CLI:
-
-```bash
-cargo run -p qbt-bridge --bin qbt-rs -- doctor
 cargo run -p qbt-bridge --bin qbt-rs -- configure
+cargo run -p qbt-bridge --bin qbt-rs -- doctor
 ```
 
-## IBM Quantum — Python
+`.env` is gitignored. Secret fields use hidden terminal input. Doctor/status paths report configuration state without echoing raw secrets.
 
-Install:
+## IBM Quantum
+
+Python:
 
 ```bash
 pip install -e ".[ibm]"
-```
-
-Configure one of these ways:
-
-1. `qbt configure`
-2. environment variables
-3. a Qiskit Runtime account already saved on your machine
-4. direct constructor injection from your organization's secret manager
-
-Environment variables:
-
-```dotenv
-IBM_QUANTUM_TOKEN=
-IBM_QUANTUM_INSTANCE=
-IBM_QUANTUM_BACKEND=
-```
-
-Then:
-
-```bash
 qbt status --provider ibm
 qbt sample --provider ibm --shots 1024
 ```
 
-```python
-from qbt_bridge import QuantumBridge
-from qbt_bridge.providers.ibm import IBMQuantumProvider
-
-bridge = QuantumBridge([IBMQuantumProvider()])
-print(bridge.connect())
-packet = bridge.control_packet(shots=1024)
-print(packet["quantum_mix"])
-print(packet["states"][0]["job_id"])
-```
-
-## IBM Quantum — Rust
-
-Rust uses IBM's language-neutral REST interface. Supply your own IBM API key and Quantum Compute instance CRN:
+Rust:
 
 ```bash
 export IBM_QUANTUM_TOKEN="..."
@@ -169,14 +238,15 @@ export IBM_QUANTUM_BACKEND="..."
 cargo run -p qbt-bridge --bin qbt-rs -- sample --provider ibm --shots 1024
 ```
 
-The Rust provider performs IBM IAM token exchange, submits a Sampler V2 REST job, polls job state, retrieves samples, converts them to counts, and emits a normalized QBT packet. Advanced users can provide pre-transpiled/ISA OpenQASM through `IBM_QUANTUM_QASM`. See `RUST_USERS.md`.
+The native Rust path performs IBM IAM token exchange, Sampler V2 REST submission, polling, result retrieval, counts conversion, normalization, and QBT provenance.
 
-## Azure Quantum — Python
+## Azure Quantum
 
-Install:
+Python:
 
 ```bash
 pip install -e ".[azure]"
+qbt status --provider azure
 ```
 
 Recommended workspace locator:
@@ -186,58 +256,16 @@ AZURE_QUANTUM_RESOURCE_ID=
 AZURE_QUANTUM_TARGET=
 ```
 
-Alternative locator:
+Rust exposes `AzureRestClient`, `AzureRunner`, and `AzureQuantumProvider`, keeping target-specific job schemas at the provider edge while preserving the QBT state contract downstream.
 
-```dotenv
-AZURE_SUBSCRIPTION_ID=
-AZURE_QUANTUM_RESOURCE_GROUP=
-AZURE_QUANTUM_WORKSPACE=
-```
+See [`docs/API_KEYS.md`](docs/API_KEYS.md) and [`RUST_USERS.md`](RUST_USERS.md).
 
-Optional Microsoft Entra service principal:
+# Canonical normalized contract
 
-```dotenv
-AZURE_TENANT_ID=
-AZURE_CLIENT_ID=
-AZURE_CLIENT_SECRET=
-```
-
-Azure CLI / DefaultAzureCredential can be used instead, avoiding a stored client secret.
-
-```bash
-qbt status --provider azure
-```
-
-Azure Quantum supports multiple target/provider job schemas, so QBT keeps execution behind a tiny injected runner instead of pretending every target has the same `run()` API. See `docs/API_KEYS.md` and `examples/azure_workspace.py`.
-
-## Azure Quantum — Rust
-
-Rust exposes:
-
-- `AzureRestClient` for the Azure Quantum data-plane jobs API.
-- `AzureRunner` for target-specific execution/result conversion.
-- `AzureQuantumProvider` for feeding runner results into the normal QBT state/provenance pipeline.
-
-This keeps vendor-specific payloads at the edge while preserving one QBT contract downstream. See `RUST_USERS.md` for complete examples.
-
-# Five-line Python integration
-
-```python
-from qbt_bridge import QuantumBridge
-from qbt_bridge.providers import SimulatorProvider
-
-bridge = QuantumBridge([SimulatorProvider(seed=7)])
-bridge.connect()
-packet = bridge.control_packet(shots=2048)
-```
-
-`packet` contains the bounded multi-provider mix plus per-source provenance.
-
-# Minimum normalized contract
-
-Every provider becomes a `QuantumState` with:
+Every successful provider sample becomes a `QuantumState` containing:
 
 ```text
+qbt_version
 provider
 backend
 execution_mode = hardware | simulator | archive | fallback
@@ -245,41 +273,46 @@ timestamp
 job_id
 shots
 entropy in [0, 1]
-normalized_vector
-result_digest (SHA-256)
+normalized_vector[4]
+result_digest = SHA-256
 provenance
-quality metadata
+quality
 ```
 
-The Python and Rust implementations intentionally use the same conceptual boundary so mixed-language services can exchange QBT packets over JSON.
+A `ControlPacket` contains:
 
-# Three integration levels
+```text
+qbt_version
+active_sources
+quantum_mix in [0, 1]
+states[]
+provider_errors{}
+```
 
-## 1. Prompt/control metadata
+The four normalized vector dimensions are:
 
-Python includes:
+1. normalized Shannon entropy
+2. hardware-source flag
+3. logarithmic shot reliability
+4. quality confidence
+
+# Model integration
+
+Python prompt-safe integration:
 
 ```python
 from qbt_bridge.integrations import to_prompt_block
 prompt_context = to_prompt_block(packet)
 ```
 
-Only non-secret state is serialized.
-
-## 2. External controller
-
-Use `quantum_mix` or the normalized vector to influence bounded routing, exploration, simulation initial conditions, or ensemble selection.
-
-## 3. Native model conditioner
-
-Python includes a PyTorch conditioner:
+Optional PyTorch conditioner:
 
 ```python
 from qbt_bridge.integrations.torch import build_qbt_conditioner
 conditioner = build_qbt_conditioner(model_dim=4096, quantum_dim=4)
 ```
 
-The conditioning rule is:
+Conditioning rule:
 
 ```text
 H_q = W_q Q + b_q
@@ -287,11 +320,11 @@ G   = sigmoid(W_g[H ; H_q] + b_g)
 H'  = LayerNorm(H + G * H_q)
 ```
 
-Rust applications can feed the same `normalized_vector` into their own tensor/runtime layer without depending on Python.
+Other languages can consume the same normalized vector in their own tensor/runtime libraries.
 
-# Scientific controls are mandatory for performance claims
+# Scientific controls
 
-Compare at least:
+Performance claims should compare at least:
 
 1. real quantum hardware
 2. provider simulator
@@ -299,7 +332,7 @@ Compare at least:
 4. fixed control
 5. QBT disabled
 
-A provider connection or job ID can establish integration/provenance. It does **not** establish a model-quality advantage.
+A provider connection, backend name, job ID, or physical random source can establish integration/provenance. It does **not** by itself establish improved model quality or quantum advantage.
 
 # COSMOS proof-of-concept lineage
 
@@ -311,44 +344,61 @@ The source material from which QBT was extracted recorded:
 - permission checks before explicit real IBM live-refill execution
 - IBM/Azure entropy blending into a classical cognitive loop as bounded `q_entropy`
 
-The broader CST/COSMOS research ledger reports positive evidence for quantum provenance/auditability while several matched ML-advantage tests were null. This repo preserves that distinction.
+The broader CST/COSMOS research ledger reports positive evidence for quantum provenance/auditability while several matched ML-advantage tests were null. This repository preserves that distinction.
 
 Related foundational research: **12-Dimensional Cosmic Synapse Theory**, DOI `10.5281/zenodo.17574447`.
 
-# Repo map
+# Repository map
 
 ```text
-Cargo.toml                    root Rust workspace
-src/qbt_bridge/               installable Python library
-  bridge.py                   orchestration / fail-soft blend
-  config.py                   BYOK .env loader + masked configuration status
-  providers/ibm.py            IBM Qiskit Runtime / Sampler V2
-  providers/azure.py          Azure Quantum workspace adapter
-  providers/simulator.py      classical control
-  integrations/prompt.py      prompt-safe state block
-  integrations/torch.py       trainable conditioner
-rust/qbt-bridge/              native Rust crate
-  Cargo.toml                  Rust package metadata
-  src/lib.rs                  QBT types/core/providers/REST clients
-  src/bin/qbt-rs.rs           Rust CLI
-  tests/                      Rust integration tests
-  examples/                   Rust examples
-RUST_USERS.md                 complete Rust integration manual
-examples/                     Python integration examples
-tests/                        Python offline tests
-docs/API_KEYS.md              Python credential setup
-docs/ARCHITECTURE.md          engineering specification
-docs/INTEGRATION_GUIDE.md     company adoption checklist
-docs/PROOF_OF_CONCEPT.md      evidence + claim boundaries
-docs/TEACHER_MANUAL.md        course/labs/rubric/capstone
-docs/LAUNCH_KIT.md            public launch copy + visual plan
-docs/DEMO_SCRIPT.md           two-minute demo
-paper/                        publication-style manuscript
+Cargo.toml                         Rust workspace
+src/qbt_bridge/                    native Python SDK
+rust/qbt-bridge/                   native Rust SDK
+rust/qbt-ffi/                      C ABI / C++ wrapper
+spec/                              JSON Schema + OpenAPI + protocol
+bindings/                          cross-language reference clients
+LANGUAGE_COMPATIBILITY.md          complete language matrix
+RUST_USERS.md                      Rust manual
+tests/                             Python tests
+examples/                          Python examples
+docs/API_KEYS.md                   BYOK setup
+docs/ARCHITECTURE.md               architecture manual
+docs/INTEGRATION_GUIDE.md          adoption guide
+docs/PROOF_OF_CONCEPT.md           evidence/claim boundaries
+docs/SECURITY.md                   security guidance
+docs/TEACHER_MANUAL.md             teaching course/labs/rubric
+docs/DISTRIBUTION.md               distribution guidance
+docs/LAUNCH_KIT.md                 launch material
+docs/DEMO_SCRIPT.md                demo sequence
+paper/QUANTUM_BRIDGE_TRANSFORMER.md publication-style manuscript
+RELEASE_CHECKLIST.md                release acceptance gates
 ```
 
-# Launch / contribute
+# Validation
 
-If you can add a provider, reproduce a benchmark, find a security issue, produce a clean null result, add a Rust/Python integration, or attach QBT to a model stack we did not anticipate, contributions are welcome. See `CONTRIBUTING.md` and `ROADMAP.md`.
+GitHub Actions is the source of truth for automated release validation. The compatibility suite covers:
+
+- Python 3.10 / 3.11 / 3.12
+- Rust workspace tests + Clippy + rustfmt
+- Rust workspace tests on Windows and macOS
+- linked C and C++ FFI executables
+- sidecar smoke tests on Linux, Windows, and macOS
+- JavaScript + TypeScript declarations
+- Go
+- Java / Kotlin-compatible JVM client
+- C# / .NET
+- Swift
+- PHP
+- Ruby
+- Perl
+- shell/curl
+- PowerShell
+
+Live IBM/Azure account acceptance remains BYOK and is never performed with somebody else's private credentials in public CI.
+
+# Contribute
+
+Provider adapters, reproducible benchmarks, security improvements, new language adapters, clean null results, documentation fixes, and integrations with new AI/runtime stacks are welcome. See `CONTRIBUTING.md` and `ROADMAP.md`.
 
 # License
 
