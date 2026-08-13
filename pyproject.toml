@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "qbt-bridge"
-version = "0.1.0"
+version = "0.2.0"
 description = "Provider-neutral Quantum Bridge Transformer integration layer for IBM Quantum, Azure Quantum, simulators, and classical AI systems."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -23,8 +23,8 @@ classifiers = [
 dependencies = []
 
 [project.optional-dependencies]
-ibm = ["qiskit>=1.2", "qiskit-ibm-runtime>=0.29"]
-azure = ["azure-quantum>=2.0", "azure-identity>=1.17"]
+ibm = ["qiskit>=2.4", "qiskit-ibm-runtime>=0.46.1"]
+azure = ["qdk[azure]", "azure-identity>=1.17"]
 torch = ["torch>=2.2"]
 dev = ["pytest>=8.0", "ruff>=0.6"]
 
