@@ -1,0 +1,12 @@
+Quantum Bridge Transformer (QBT)
+Copyright 2026 Cory Shane Davis
+
+This repository extracts and generalizes the quantum bridge / provenance / control
+pattern from the COSMOS / CST research lineage.
+
+Related foundational research:
+Cory Shane Davis, "12-Dimensional Cosmic Synapse Theory"
+DOI: 10.5281/zenodo.17574447
+
+Third-party provider SDKs (IBM Quantum, Qiskit, Azure Quantum, PyTorch) are optional
+dependencies and remain subject to their own licenses and service terms.
