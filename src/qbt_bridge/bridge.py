@@ -15,6 +15,7 @@ class QuantumBridge:
     providers: list[QuantumProvider]
     fallback: float = 0.5
     _last_states: list[QuantumState] = field(default_factory=list, init=False)
+    _last_errors: dict[str, str] = field(default_factory=dict, init=False)
 
     def connect(self) -> dict[str, dict[str, Any]]:
         status: dict[str, dict[str, Any]] = {}
@@ -32,13 +33,13 @@ class QuantumBridge:
 
     def sample_all(self, *, shots: int = 1024) -> list[QuantumState]:
         states: list[QuantumState] = []
+        self._last_errors = {}
         for provider in self.providers:
             try:
                 sample = provider.sample(shots=shots)
                 states.append(normalize_sample(sample))
-            except Exception:  # noqa: BLE001,S112
-                # Provider failure must not crash the host AI system.
-                continue
+            except Exception as exc:  # noqa: BLE001 - fail-soft by design
+                self._last_errors[provider.name] = str(exc)
         self._last_states = states
         return list(states)
 
@@ -49,6 +50,7 @@ class QuantumBridge:
             "active_sources": len(states),
             "quantum_mix": blend_quantum_entropy(states, fallback=self.fallback),
             "states": [s.to_dict() for s in states],
+            "provider_errors": dict(self._last_errors),
         }
 
     def status(self) -> dict[str, Any]:
@@ -68,6 +70,7 @@ class QuantumBridge:
             "last_quantum_mix": blend_quantum_entropy(
                 self._last_states, fallback=self.fallback
             ),
+            "provider_errors": dict(self._last_errors),
         }
 
     def close(self) -> None:
