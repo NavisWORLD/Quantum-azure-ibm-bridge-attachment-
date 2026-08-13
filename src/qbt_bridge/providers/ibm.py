@@ -58,7 +58,7 @@ class IBMQuantumProvider(QuantumProvider):
         else:
             try:
                 self._backend = self._service.least_busy(operational=True, simulator=False)
-            except Exception:
+            except Exception:  # noqa: BLE001 - SDKs/providers expose heterogeneous errors
                 candidates = list(self._service.backends(simulator=False, operational=True))
                 if not candidates:
                     raise RuntimeError("No operational IBM hardware backend is available to this account.")
