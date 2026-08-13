@@ -1,0 +1,74 @@
+openapi: 3.1.0
+info:
+  title: QBT Universal Sidecar API
+  version: "1.0"
+  description: Language-neutral local API for Quantum Bridge Transformer.
+servers:
+  - url: http://127.0.0.1:8766
+paths:
+  /health:
+    get:
+      responses:
+        "200":
+          description: Sidecar health
+  /v1/status:
+    get:
+      parameters:
+        - in: query
+          name: provider
+          schema:
+            type: string
+            enum: [simulator, ibm, azure]
+      responses:
+        "200":
+          description: Provider and bridge status
+  /v1/sample:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                provider:
+                  type: string
+                  enum: [simulator, ibm, azure]
+                shots:
+                  type: integer
+                  minimum: 1
+                  maximum: 1000000
+                seed:
+                  type: integer
+      responses:
+        "200":
+          description: Connection information and QBT ControlPacket
+  /v1/normalize:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [counts]
+              properties:
+                provider:
+                  type: string
+                backend:
+                  type: string
+                mode:
+                  type: string
+                  enum: [hardware, simulator, archive, fallback]
+                counts:
+                  type: object
+                  additionalProperties:
+                    type: integer
+                    minimum: 0
+                shots:
+                  type: integer
+                  minimum: 1
+                  maximum: 1000000
+      responses:
+        "200":
+          description: Normalized QBT QuantumState
