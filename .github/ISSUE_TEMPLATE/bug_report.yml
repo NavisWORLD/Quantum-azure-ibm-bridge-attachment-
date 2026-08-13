@@ -1,0 +1,38 @@
+name: Bug report
+description: Report a reproducible QBT problem
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Minimal reproduction
+      description: Never include API keys, tokens, connection strings, or other secrets.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: QBT version / commit
+  - type: dropdown
+    id: provider
+    attributes:
+      label: Provider
+      options:
+        - simulator/control
+        - IBM Quantum
+        - Azure Quantum
+        - other
+  - type: checkboxes
+    id: secret
+    attributes:
+      label: Security check
+      options:
+        - label: I confirmed this report contains no credentials or private keys.
+          required: true
