@@ -23,6 +23,12 @@ final class QbtClient
 
     public function normalize(array $payload): array
     {
+        if (isset($payload['counts']) && is_array($payload['counts'])) {
+            // PHP converts numeric-string keys like "0" and "1" to integer
+            // array keys. Casting to object preserves a JSON object count map
+            // instead of emitting a JSON array such as [64,64].
+            $payload['counts'] = (object) $payload['counts'];
+        }
         return $this->request('POST', '/v1/normalize', $payload);
     }
 
