@@ -9,7 +9,11 @@ use qbt_bridge::{
 };
 
 #[derive(Debug, Parser)]
-#[command(name = "qbt-rs", version, about = "Quantum Bridge Transformer Rust CLI")]
+#[command(
+    name = "qbt-rs",
+    version,
+    about = "Quantum Bridge Transformer Rust CLI"
+)]
 struct Cli {
     #[command(subcommand)]
     command: Command,
@@ -50,16 +54,27 @@ fn bridge_for(provider: ProviderArg, seed: u64) -> QuantumBridge {
     }
 }
 
+fn is_secret_key(key: &str) -> bool {
+    key.contains("TOKEN") || key.contains("SECRET") || key.contains("CONNECTION_STRING")
+}
+
 fn configure(file: PathBuf) -> Result<()> {
     println!("QBT Rust configuration. Leave any field blank to skip it.");
-    println!("Secrets are written only to the local file you choose; .env is gitignored.");
+    println!("Secrets use hidden terminal input and are written only to the local file you choose.");
 
     let mut values = BTreeMap::new();
     for key in CONFIG_KEYS {
         print!("{key}: ");
         io::stdout().flush()?;
-        let mut input = String::new();
-        io::stdin().read_line(&mut input)?;
+
+        let input = if is_secret_key(key) {
+            rpassword::read_password()?
+        } else {
+            let mut input = String::new();
+            io::stdin().read_line(&mut input)?;
+            input
+        };
+
         let value = input.trim();
         if !value.is_empty() {
             values.insert((*key).to_string(), value.to_string());
