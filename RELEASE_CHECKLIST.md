@@ -88,6 +88,9 @@ This checklist defines what "ready" means for the Quantum Bridge Transformer uni
 - [x] request-body limit
 - [x] bounded shot-count input
 - [x] no raw provider credentials in HTTP responses
+- [x] live IBM/Azure sidecar execution disabled by default
+- [x] explicit `--allow-live-providers` / `QBT_ALLOW_LIVE_PROVIDERS=1` opt-in
+- [x] live-provider safety behavior covered by tests
 - [x] `GET /health`
 - [x] `GET /v1/status`
 - [x] `POST /v1/sample`
@@ -123,7 +126,7 @@ Implementation is present for every checked item. The final CI boxes remain open
 - [x] Kotlin interoperability documented through the JVM adapter
 - [x] C#/.NET client implemented
 - [x] Swift client implemented
-- [x] PHP client implemented
+- [x] PHP client implemented with numeric-bitstring count-map preservation
 - [x] Ruby client implemented
 - [x] Perl client implemented
 - [x] shell/curl client implemented
@@ -163,6 +166,8 @@ These ecosystems do not need duplicated provider logic. They use one of the two 
 ## Live-provider acceptance test
 
 Public CI deliberately contains **no IBM or Azure credentials**. A live hardware/workspace path is accepted for a specific user/account only after that user supplies their own credentials and completes the appropriate smoke test.
+
+The HTTP sidecar intentionally refuses live IBM/Azure sampling unless the operator explicitly enables it. Direct Python/Rust CLI provider commands remain explicit operator actions and keep their existing behavior.
 
 ### IBM
 
