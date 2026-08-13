@@ -1,0 +1,22 @@
+name: Feature request
+description: Propose a provider, integration, experiment, or usability improvement
+title: "[feature] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / use case
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: How should this be tested?
+      description: Include controls if the request makes a performance claim.
