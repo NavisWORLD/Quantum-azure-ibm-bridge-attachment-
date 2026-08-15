@@ -1,11 +1,11 @@
 # Quantum Bridge Transformer (QBT)
 
 [![CI](https://github.com/NavisWORLD/Quantum-azure-ibm-bridge-attachment-/actions/workflows/ci.yml/badge.svg)](https://github.com/NavisWORLD/Quantum-azure-ibm-bridge-attachment-/actions/workflows/ci.yml)
-![QBT](https://img.shields.io/badge/QBT-0.3.0-blueviolet)
+![QBT](https://img.shields.io/badge/QBT-0.4.0-blueviolet)
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
 ![Rust](https://img.shields.io/badge/Rust-native-orange)
 ![C ABI](https://img.shields.io/badge/C%20ABI-FFI-informational)
-![License](https://img.shields.io/badge/license-Apache--2.0-green)
+![License](https://img.shields.io/badge/license-restricted%20source-critical)
 ![IBM Quantum](https://img.shields.io/badge/IBM-Quantum-6929C4)
 ![Azure Quantum](https://img.shields.io/badge/Azure-Quantum-0078D4)
 
@@ -13,7 +13,13 @@
 
 QBT is a provider-neutral quantum-to-classical integration layer. It converts IBM Quantum, Azure Quantum, simulator, archive, or external measurement results into a bounded, auditable `QuantumState` / `ControlPacket` that ordinary AI systems, agents, simulations, games, robotics, research software, and control systems can consume.
 
-QBT 0.3.0 ships four compatibility surfaces:
+## Current rights boundary
+
+Current and future Cory-owned original material expressly distributed under the repository's current `LICENSE` is **not offered for general commercial reuse, redistribution, modification, derivative-work creation, or incorporation into other products without separate written permission**. Historical copies previously distributed under Apache-2.0 retain the rights validly granted to those copies. See `LICENSE`, `LICENSE_HISTORY.md`, and `COMMERCIAL_RIGHTS.md`.
+
+Third-party dependencies and provider SDKs remain governed by their own licenses and terms.
+
+QBT 0.4.0 ships four compatibility surfaces:
 
 1. **Native Python SDK**
 2. **Native Rust SDK**
@@ -415,10 +421,12 @@ Live IBM/Azure account acceptance remains BYOK and is never performed with someb
 
 # Contribute
 
-Provider adapters, reproducible benchmarks, security improvements, new language adapters, clean null results, documentation fixes, and integrations with new AI/runtime stacks are welcome. See `CONTRIBUTING.md` and `ROADMAP.md`.
+Research feedback, reproducibility reports, security reports, documentation corrections, and citations are welcome. External code or copyrightable contributions are not accepted for incorporation unless written contribution rights are arranged first. See `CONTRIBUTING.md`.
 
 # License
 
-Apache License 2.0. See `LICENSE` and `NOTICE`.
+Current covered Cory-owned original material is distributed under the repository's restricted source rights notice. See `LICENSE`, `LICENSE_HISTORY.md`, and `COMMERCIAL_RIGHTS.md`.
+
+Historical copies or versions that were validly distributed under Apache License 2.0 retain the rights granted to those copies. This current notice does not revoke those historical grants.
 
 Copyright 2026 Cory Shane Davis.
