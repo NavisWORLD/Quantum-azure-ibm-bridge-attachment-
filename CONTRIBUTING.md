@@ -1,18 +1,22 @@
 # Contributing
 
-Thank you for helping make QBT more useful and more falsifiable.
+Thank you for your interest in Quantum Bridge Transformer (QBT).
 
-## Good contributions
+## Contribution rights policy
 
-- new provider adapters/runners
-- reproducible hardware-vs-control benchmarks
-- security improvements
-- platform compatibility fixes
-- examples for real host AI systems
-- documentation corrections
-- null results
+This repository contains Cory-owned material that is now being developed under a restricted commercial rights strategy. External contributions are **not accepted for incorporation into proprietary Cory-owned material unless a written contribution, assignment, or other rights agreement is completed first**.
 
-## Before opening a PR
+Opening an issue, discussion, or pull request does not transfer copyright ownership and does not by itself grant Cory Shane Davis / NavisWORLD a right to relicense your contribution.
+
+If you want to contribute code or other copyrightable material, contact Cory Shane Davis / @NavisWORLD before submitting it so the applicable contribution terms can be agreed in writing.
+
+## Research reports and factual feedback
+
+Bug reports, reproducibility reports, benchmark results, security reports, documentation corrections, and citations are welcome. When reporting research results, include enough information to reproduce the result where practical: dataset snapshot, model/checkpoint, provider/backend, shots, seeds, control arms, software versions, and metrics.
+
+Do not include code, datasets, model weights, confidential information, or other material you do not have the right to submit.
+
+## Local verification
 
 ```bash
 pip install -e ".[dev]"
@@ -20,17 +24,14 @@ pytest
 ruff check src tests examples
 ```
 
-## Provider contributions must
+## Provider reports should
 
 1. label hardware/simulator/archive/fallback explicitly;
-2. never log credentials;
-3. normalize into `QuantumSample` / `QuantumState`;
-4. preserve provider/backend/job provenance when available;
-5. fail without crashing unrelated host inference;
-6. include tests that do not require paid hardware.
+2. never disclose credentials;
+3. preserve provider/backend/job provenance when available;
+4. distinguish integration evidence from quantum-advantage claims;
+5. include appropriate classical controls where a performance claim is made.
 
-## Research contributions
+Null results are welcome. They are part of the evidence.
 
-Include enough information to reproduce the result: dataset snapshot, model/checkpoint, provider/backend, shots, seeds, control arms, software versions, and metrics.
-
-Null results are welcome. They are part of the evidence, not failed contributions.
+See `LICENSE`, `LICENSE_HISTORY.md`, and `COMMERCIAL_RIGHTS.md` before using or contributing material.
