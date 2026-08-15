@@ -6,7 +6,7 @@ authors:
   - family-names: "Davis"
     given-names: "Cory Shane"
 year: 2026
-license: "Apache-2.0"
+license: "LicenseRef-Cory-Davis-Quantum-Source-1.0"
 repository-code: "https://github.com/NavisWORLD/Quantum-azure-ibm-bridge-attachment-"
 keywords:
   - quantum computing
