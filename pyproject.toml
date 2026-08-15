@@ -8,7 +8,7 @@ version = "0.4.0"
 description = "Provider-neutral Quantum Bridge Transformer integration layer for IBM Quantum, Azure Quantum, simulators, and classical AI systems."
 readme = "README.md"
 requires-python = ">=3.10"
-license = {text = "Apache-2.0"}
+license = {text = "Proprietary - see LICENSE and LICENSE_HISTORY.md"}
 authors = [{name = "Cory Shane Davis"}]
 keywords = ["quantum", "ai", "transformer", "ibm-quantum", "azure-quantum", "provenance", "entropy"]
 classifiers = [
@@ -17,7 +17,6 @@ classifiers = [
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
-  "License :: OSI Approved :: Apache Software License",
   "Topic :: Scientific/Engineering",
 ]
 dependencies = []
