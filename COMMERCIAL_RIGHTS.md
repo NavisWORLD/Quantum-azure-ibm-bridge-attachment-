@@ -1,11 +1,23 @@
 # Commercial Rights & DOI Notice
 
-Copyright © 2026 Cory Davis / NavisWORLD.
+Copyright © 2026 Cory Shane Davis / NavisWORLD.
 
-Cory-owned original material not governed by another controlling license is available for noncommercial use under PolyForm Noncommercial 1.0.0. Commercial use requires a separate signed agreement with Cory Davis / NavisWORLD. Hiring or contracting alone does not transfer ownership or commercial rights unless a signed agreement expressly grants them.
+## Current Cory-owned material
 
-Related COSMOS/CST research: DOI 10.5281/zenodo.17574447 — https://zenodo.org/records/17574447
+Covered Cory-owned original material distributed under the repository's current rights notice is not offered for general commercial reuse. Commercial, enterprise, OEM, hosted-service, integration, AI/ML development, or other broader rights require a separate written agreement signed by Cory Shane Davis and the counterparty.
 
-Third-party material and earlier versions remain governed by their valid existing licenses. Prior MIT, Apache, GPL, Creative Commons, or other grants are not revoked.
+No patent license is granted by this notice. Patent, trademark, trade-name, and other rights are reserved except where applicable law independently provides otherwise.
 
-Commercial licensing: contact @NavisWORLD.
+## Historical copies
+
+Earlier copies or versions validly distributed under Apache-2.0, MIT, GPL, Creative Commons, or another license remain governed by the grants applicable to those copies. This repository does not attempt to revoke those historical permissions. See `LICENSE_HISTORY.md`.
+
+## Third-party material
+
+Third-party libraries, SDKs, models, datasets, documentation, and other dependencies remain governed by their respective licenses and service terms.
+
+## Provenance
+
+Related COSMOS/CST research: DOI `10.5281/zenodo.17574447`.
+
+Commercial licensing: contact Cory Shane Davis / @NavisWORLD.
