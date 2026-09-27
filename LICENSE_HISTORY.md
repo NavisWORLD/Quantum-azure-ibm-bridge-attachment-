@@ -21,3 +21,7 @@ Dependencies, SDKs, libraries, models, datasets, provider services, documentatio
 ## Provenance
 
 Related COSMOS/CST research provenance: DOI `10.5281/zenodo.17574447`.
+
+## Prospective open-source restoration (2026-09-26)
+
+On adoption of the new root Apache-2.0 LICENSE, original Cory Shane Davis / NavisWORLD-owned copyrightable material included in those new releases is again distributed under Apache-2.0, unless a file or component explicitly indicates a different controlling license. Earlier grants, versions, and the intervening source-available period remain documented as issued. No third-party provider SDK, hardware service, dataset, model weights, research publication or private credential is automatically relicensed.
