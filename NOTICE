@@ -10,3 +10,5 @@ DOI: 10.5281/zenodo.17574447
 
 Third-party provider SDKs (IBM Quantum, Qiskit, Azure Quantum, PyTorch) are optional
 dependencies and remain subject to their own licenses and service terms.
+
+New-generation open-source scope (prospective upon adoption): the original Cory-owned QBT software and documentation distributed with the new root LICENSE are offered under Apache License 2.0 unless a file or component states another license. Historical grants and third-party provider terms are unaffected.
