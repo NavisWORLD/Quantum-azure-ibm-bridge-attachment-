@@ -5,7 +5,7 @@
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
 ![Rust](https://img.shields.io/badge/Rust-native-orange)
 ![C ABI](https://img.shields.io/badge/C%20ABI-FFI-informational)
-![License](https://img.shields.io/badge/license-restricted%20source-critical)
+![License](https://img.shields.io/badge/license-Apache--2.0-blue)
 ![IBM Quantum](https://img.shields.io/badge/IBM-Quantum-6929C4)
 ![Azure Quantum](https://img.shields.io/badge/Azure-Quantum-0078D4)
 
@@ -13,11 +13,11 @@
 
 QBT is a provider-neutral quantum-to-classical integration layer. It converts IBM Quantum, Azure Quantum, simulator, archive, or external measurement results into a bounded, auditable `QuantumState` / `ControlPacket` that ordinary AI systems, agents, simulations, games, robotics, research software, and control systems can consume.
 
-## Current rights boundary
+## Open-source rights and provenance
 
-Current and future Cory-owned original material expressly distributed under the repository's current `LICENSE` is **not offered for general commercial reuse, redistribution, modification, derivative-work creation, or incorporation into other products without separate written permission**. Historical copies previously distributed under Apache-2.0 retain the rights validly granted to those copies. See `LICENSE`, `LICENSE_HISTORY.md`, and `COMMERCIAL_RIGHTS.md`.
+When this licensing transition is adopted, original Cory-owned Quantum Bridge Transformer software and documentation distributed with the new root [Apache-2.0 LICENSE](LICENSE) may be used, changed, redistributed, and used commercially under Apache License 2.0. Cory retains copyright in his contributions. Historic versions remain governed by the terms with which they were distributed; see [LICENSE_HISTORY.md](LICENSE_HISTORY.md) and [COMMERCIAL_RIGHTS.md](COMMERCIAL_RIGHTS.md).
 
-Third-party dependencies and provider SDKs remain governed by their own licenses and terms.
+Provider SDKs, third-party packages and datasets, hardware/API access, research publications, trademarks and separate licensed components keep their individual terms; Apache-2.0 does not override provider fees or credentials.
 
 QBT 0.4.0 ships four compatibility surfaces:
 
