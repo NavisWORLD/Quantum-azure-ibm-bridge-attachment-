@@ -90,7 +90,11 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
-      - uses: android-actions/setup-android@v3
+      # v3 tries to install Google's removed `tools` SDK package.
+      # v4 with explicit packages requests only the supported platform-tools.
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: 'platform-tools'
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "9.5.0"
